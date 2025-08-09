@@ -1,0 +1,44 @@
+# docker-compose.yml
+version: '3.9'
+
+services:
+  fl-server:
+    build:
+      context: ./fl_server
+    container_name: fl-server
+    ports:
+      - "8081:8080" # Expose server port to the host machine (changed host port to avoid conflicts)
+    environment:
+      - FLOWER_PORT=8080
+    networks:
+      - fl-network
+
+  fl-client-1:
+    build:
+      context: ./fl_client
+    container_name: fl-client-1
+    depends_on:
+      - fl-server
+    environment:
+      - FLOWER_SERVER_HOST=fl-server
+      - FLOWER_SERVER_PORT=8080
+      - CLIENT_ID=1 # Differentiate clients
+    networks:
+      - fl-network
+
+  fl-client-2:
+    build:
+      context: ./fl_client
+    container_name: fl-client-2
+    depends_on:
+      - fl-server
+    environment:
+      - FLOWER_SERVER_HOST=fl-server
+      - FLOWER_SERVER_PORT=8080
+      - CLIENT_ID=2 # Differentiate clients
+    networks:
+      - fl-network
+
+networks:
+  fl-network:
+    driver: bridge
